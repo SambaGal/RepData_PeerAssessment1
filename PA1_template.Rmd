@@ -7,19 +7,166 @@ output:
 
 
 ## Loading and preprocessing the data
-
-
+```{r load, warning=F, message=FALSE}
+library(dplyr)
+library(ggplot2)
+unzip("activity.zip")
+activity <- read.csv('activity.csv')
+activity$date <- as.Date(activity$date, '%Y-%m-%d')
+str(activity)
+```
 
 ## What is mean total number of steps taken per day?
 
+Calculate total daily steps
+```{r total, warning=FALSE, message=FALSE}
+step_sum <- activity %>% group_by(date) %>% summarise(steps_per_day=sum(steps, na.rm=T))
+head(step_sum)
+```
+Plot a histogram of total daily steps
+```{r plot} 
+g <- ggplot(step_sum, aes(steps_per_day)) +
+geom_histogram(fill='blue', color='black', bins=37)+theme_bw()
+print(g)
+```
+
+Calculate average daily steps
+
+```{r average, message=FALSE}
+mean(step_sum$steps_per_day)
+```
+
+Calculate Median Daily Steps
+
+```{r median, message=FALSE}
+median(step_sum$steps_per_day)
+```
 
 
 ## What is the average daily activity pattern?
 
+Calculate average steps in each interval
+```{r pattern, message=FALSE}
+int_avg_steps <- activity %>% group_by(interval)%>% summarise(avg_steps_int=mean(steps, na.rm=T))
+head(int_avg_steps)
+```
+
+Time series plot of average steps by interval
+
+```{r plot2}
+t <- ggplot(int_avg_steps, aes(x=interval, y=avg_steps_int))+geom_line()+theme_bw()
+print(t)
+```
+
+Find interval with maximum steps
+
+```{r max}
+max_steps_int <- filter(int_avg_steps, avg_steps_int==max(avg_steps_int))
+print(max_steps_int)
+```
 
 
 ## Imputing missing values
 
+Total number of missing values
+
+```{r missing}
+missing_values <-sum(!complete.cases(activity))
+print(missing_values)
+```
+
+Impute missing steps by the average steps in each interval
+
+Create interval average values
+
+```{r intavg}
+int_avg <- function(interval){
+         return(mean(activity$step[activity$interval==interval], na.rm=T))
+}
+int_a <- sapply(activity$interval, int_avg)
+head(int_a)
+```
+
+Impute steps using int_avg values
+
+```{r impute}
+impute_steps <- function(steps, int_a){
+        out <- steps
+        for (i in 1:length(steps)){
+                if (is.na(steps[i])){
+                        out[i] <- int_a[i]
+                } else {
+                        out[i] <- steps[i]
+                }
+        }
+        return(out)
+}
+steps <- impute_steps(activity$steps, int_a)
+head(steps)
+```
+
+Create new data set with imputed steps
+
+```{r new}
+activity.new <- activity
+activity.new$steps <- steps
+head(activity.new)
+```
+
+Histogram of the new data reflects that missing data was removed and due to the imputation mean and median are now the same and more accurate
+
+```{r newhist, message=F}
+step_sum_new <- activity.new %>% group_by(date) %>% summarise(steps_per_day=sum(steps))
+head(step_sum_new)
+n <- ggplot(step_sum_new, aes(steps_per_day)) +
+        geom_histogram(fill='blue', color='black', bins=37)+theme_bw()
+print(n)
+```
+
+Average of the imputed daily steps 
+
+```{r avgnew, message=F}
+mean(step_sum_new$steps_per_day)
+```
+
+Median of the imputed daily steps
+
+```{r medianew, message=F}
+median(step_sum_new$steps_per_day)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Create new variable for weekdays and weekends
+
+```{r newvar, message=F}
+days <- weekdays(activity.new$date)
+
+wkdays <- function(days){
+        out <- days
+        for (i in 1:length(days)){
+                if (days[i] %in% c('Saturday', 'Sunday')){
+                        out[i] <- 'weekend'
+                } else {
+                        out[i] <- 'weekday'
+                }
+        }
+        return(out)
+}
+activity.new$day <- wkdays(days)
+activity.new$day <- as.factor(activity.new$day)
+str(activity.new)
+```
+
+Plot average steps by interval on weekdays and weekends
+
+```{r plotw, message=F}
+int_avg_steps_new <- activity.new %>% group_by(interval, day)%>% summarise(avg_steps_int=mean(steps, na.rm=T))
+head(int_avg_steps_new)
+
+w <- ggplot(int_avg_steps_new, aes(x=interval, y=avg_steps_int))+
+        geom_line()+facet_grid(day ~ .)+theme_bw()
+print(w)
+```
+
