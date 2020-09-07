@@ -63,7 +63,7 @@ Calculate average daily steps
 
 
 ```r
-mean(step_sum$steps_per_day)
+mean(step_sum$steps_per_day, na.rm=T)
 ```
 
 ```
@@ -74,7 +74,7 @@ Calculate Median Daily Steps
 
 
 ```r
-median(step_sum$steps_per_day)
+median(step_sum$steps_per_day, na.rm=T)
 ```
 
 ```

@@ -225,10 +225,10 @@ geom_histogram(fill=&#39;blue&#39;, color=&#39;black&#39;, bins=37)+theme_bw()
 print(g)</code></pre>
 <p><img src="PA1_template_files/figure-html/plot-1.png" /><!-- --></p>
 <p>Calculate average daily steps</p>
-<pre class="r"><code>mean(step_sum$steps_per_day)</code></pre>
+<pre class="r"><code>mean(step_sum$steps_per_day, na.rm=T)</code></pre>
 <pre><code>## [1] 9354.23</code></pre>
 <p>Calculate Median Daily Steps</p>
-<pre class="r"><code>median(step_sum$steps_per_day)</code></pre>
+<pre class="r"><code>median(step_sum$steps_per_day, na.rm=T)</code></pre>
 <pre><code>## [1] 10395</code></pre>
 </div>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">

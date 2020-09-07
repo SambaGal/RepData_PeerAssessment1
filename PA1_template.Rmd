@@ -38,13 +38,13 @@ print(g)
 Calculate average daily steps
 
 ```{r average, message=FALSE}
-mean(step_sum$steps_per_day)
+mean(step_sum$steps_per_day, na.rm=T)
 ```
 
 Calculate Median Daily Steps
 
 ```{r median, message=FALSE}
-median(step_sum$steps_per_day)
+median(step_sum$steps_per_day, na.rm=T)
 ```
 
 
