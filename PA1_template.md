@@ -1,8 +1,13 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author: "Maria Freydlin"
 output: 
   html_document:
     keep_md: true
+    self_contained: no
+    fig_caption: yes
+    toc: yes
+  
 ---
 
 
